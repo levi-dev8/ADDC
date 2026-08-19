@@ -1,0 +1,48 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build V2.cpp with MSVC (headers only)",
+      "type": "shell",
+      "command": "cmd",
+      "args": [
+        "/c",
+        "cd \"${workspaceFolder}\" && cl.exe V2.cpp /I\"C:\\opencv\\include\" /EHsc /std:c++17 /W4 /Fe:V2.exe 2>&1"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$msCompile"],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Run V2.exe",
+      "type": "shell",
+      "command": "${workspaceFolder}\\V2.exe",
+      "dependsOn": "Build V2.cpp with MSVC (headers only)",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "Build V1.cpp (reference)",
+      "type": "shell",
+      "command": "cmd",
+      "args": [
+        "/c",
+        "cd \"${workspaceFolder}\" && cl.exe V1.cpp /I\"C:\\opencv\\include\" /EHsc /std:c++17 /Fe:V1.exe 2>&1"
+      ],
+      "problemMatcher": ["$msCompile"]
+    }
+  ]
+}
+
