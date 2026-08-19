@@ -171,6 +171,80 @@ int main() {
             double size_diff_ratio = 0.0;
             bool aligned = isAligned(box, expected_size_px, target, size_diff_ratio);
 
+            // -----------------------------------------------------------
+            // Camera frame center
+            // -----------------------------------------------------------
+            cv::Point2f camera_center(
+                frame.cols / 2.0f,
+                frame.rows / 2.0f
+            );
+
+            // -----------------------------------------------------------
+            // QR bounding-box center
+            // -----------------------------------------------------------
+            cv::Point2f qr_center(
+                box.x + box.width / 2.0f,
+                box.y + box.height / 2.0f
+            );
+
+            // -----------------------------------------------------------
+            // Offset from camera center to QR center
+            // -----------------------------------------------------------
+            float offset_x = qr_center.x - camera_center.x;
+            float offset_y = qr_center.y - camera_center.y;
+
+            std::cout << "[Offset] "
+                    << "Camera=("
+                    << camera_center.x << ","
+                    << camera_center.y << ") "
+                    << "QR=("
+                    << qr_center.x << ","
+                    << qr_center.y << ") "
+                    << "dx="
+                    << offset_x
+                    << " dy="
+                    << offset_y
+                    << "\n";
+
+            cv::drawMarker(
+                frame,
+                camera_center,
+                cv::Scalar(255, 0, 0),
+                cv::MARKER_TILTED_CROSS,
+                30,
+                3
+            );
+
+            cv::circle(
+                frame,
+                qr_center,
+                6,
+                cv::Scalar(0, 0, 255),
+                -1
+            );
+
+            cv::line(
+                frame,
+                camera_center,
+                qr_center,
+                cv::Scalar(255, 255, 0),
+                2
+            );
+
+            std::string offset_text =
+                "Offset X: " + std::to_string(offset_x) +
+                "  Y: " + std::to_string(offset_y);
+
+            cv::putText(
+                frame,
+                offset_text,
+                cv::Point(10, 60),
+                cv::FONT_HERSHEY_SIMPLEX,
+                0.7,
+                cv::Scalar(255, 255, 0),
+                2
+            );
+
             cv::rectangle(frame, box, aligned ? cv::Scalar(0, 255, 0) : cv::Scalar(0, 0, 255), 2);
 
             std::string status = aligned ? "ALIGNED" : "NOT ALIGNED";
