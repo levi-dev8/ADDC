@@ -125,6 +125,10 @@ public:
                   << " MB total\n";
     }
 
+    void reset() {
+        current_idx_ = 0;
+    }
+
     void addFrame(const cv::Mat& raw_frame) {
         if (raw_frame.empty()) return;
         
@@ -190,6 +194,7 @@ public:
 // ---------------------------------------------------------------------------
 cv::Mat captureBestOfBurst(cv::VideoCapture& capture, FrameBuffer& buffer,
                            SharpnessScorer& scorer, int burst_count = 5) {
+    buffer.reset();
     ThermalState thermal = checkThermalState();
     if (thermal.is_throttled) {
         burst_count = thermal.adaptive_burst_count;
@@ -298,6 +303,7 @@ bool isAligned(const cv::Rect& detected_box,
     }
 
     // --- aspect ratio check (QR should be roughly square) ---
+    if (detected_box.height <= 0 || detected_box.width <= 0) return false;
     double aspect_ratio = static_cast<double>(detected_box.width) / detected_box.height;
     if (aspect_ratio < 0.8 || aspect_ratio > 1.25) {
         std::cerr << "[Info] Detected box aspect ratio " << aspect_ratio
@@ -350,7 +356,7 @@ void drawOverlay(cv::Mat& frame,
         cv::Scalar color = aligned ? cv::Scalar(0, 200, 0) : cv::Scalar(0, 0, 255);
         cv::rectangle(frame, detection.detected_box, color, 3);
 
-        std::string label = aligned ? "ALIGNED" : "ADJUST";
+        std::string label = aligned ? "CENTERED" : "NOT CENTERED";
         cv::putText(frame, label, cv::Point(detection.detected_box.x,
                     detection.detected_box.y - 10),
                     cv::FONT_HERSHEY_SIMPLEX, 0.6, color, 2);
@@ -440,8 +446,8 @@ int main() {
     // Camera parameters (VALIDATE BEFORE USE)
     CameraParams cam;
     cam.focal_length_px = 800.0;
-    cam.frame_width_px = 1280;
-    cam.frame_height_px = 720;
+    cam.frame_width_px = (actual_width > 0) ? actual_width : 1280;
+    cam.frame_height_px = (actual_height > 0) ? actual_height : 720;
 
     if (!cam.validate()) {
         std::cerr << "[Fatal] Invalid camera parameters\n";

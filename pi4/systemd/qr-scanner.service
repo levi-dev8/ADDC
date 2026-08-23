@@ -1,0 +1,20 @@
+[Unit]
+Description=QR Scanner (Pi 4)
+After=multi-user.target
+
+[Service]
+Type=simple
+# Adjust the path and user for your install location.
+WorkingDirectory=/home/pi/ADDC-master/pi4
+ExecStart=/home/pi/ADDC-master/pi4/build/qr_scanner_pi4 /home/pi/ADDC-master/pi4/config.cfg
+Restart=on-failure
+RestartSec=2
+User=pi
+
+[Install]
+WantedBy=multi-user.target
+
+# Install with:
+#   sudo cp qr-scanner.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now qr-scanner

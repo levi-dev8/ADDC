@@ -2,46 +2,46 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Build V2.cpp with MSVC (headers only)",
+      "label": "Build Prototype1.exe with MinGW (g++)",
       "type": "shell",
       "command": "cmd",
       "args": [
         "/c",
-        "cd \"${workspaceFolder}\" && cl.exe V2.cpp /I\"C:\\opencv\\include\" /EHsc /std:c++17 /W4 /Fe:V2.exe 2>&1"
+        "cd \"${workspaceFolder}\" && g++ -std=c++17 qr_scanner_all_in_one.cpp -IC:/msys64/mingw64/include/opencv4 -LC:/msys64/mingw64/lib -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_objdetect -lopencv_highgui -lopencv_videoio -o Prototype1.exe 2>&1"
       ],
       "group": {
         "kind": "build",
         "isDefault": true
       },
-      "problemMatcher": ["$msCompile"],
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared"
-      }
+      "problemMatcher": ["$gcc"]
     },
     {
-      "label": "Run V2.exe",
+      "label": "Build Prototype1.exe with MSVC",
       "type": "shell",
-      "command": "${workspaceFolder}\\V2.exe",
-      "dependsOn": "Build V2.cpp with MSVC (headers only)",
+      "command": "cmd",
+      "args": [
+        "/c",
+        "cd \"${workspaceFolder}\" && cl.exe qr_scanner_all_in_one.cpp /I\"C:\\opencv\\build\\include\" /EHsc /std:c++17 /W4 /Fe:Prototype1.exe /link /LIBPATH:\"C:\\opencv\\build\\x64\\vc16\\lib\" opencv_world480.lib 2>&1"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": ["$msCompile"]
+    },
+    {
+      "label": "Run Prototype1.exe --test",
+      "type": "shell",
+      "command": "${workspaceFolder}\\Prototype1.exe --test",
+      "dependsOn": "Build Prototype1.exe with MinGW (g++)",
       "presentation": {
         "reveal": "always",
         "panel": "new"
       },
       "group": {
         "kind": "test",
-        "isDefault": false
+        "isDefault": true
       }
-    },
-    {
-      "label": "Build V1.cpp (reference)",
-      "type": "shell",
-      "command": "cmd",
-      "args": [
-        "/c",
-        "cd \"${workspaceFolder}\" && cl.exe V1.cpp /I\"C:\\opencv\\include\" /EHsc /std:c++17 /Fe:V1.exe 2>&1"
-      ],
-      "problemMatcher": ["$msCompile"]
     }
   ]
 }

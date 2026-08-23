@@ -91,9 +91,10 @@ bool computeExpectedBoxSizePx(const CameraParams& cam,
 // ---------------------------------------------------------------------------
 bool isAligned(const cv::Rect& detected_box,
                double expected_size_px,
+               const CameraParams& cam,
                const TargetParams& target,
                double& out_size_diff_ratio) {
-    if (expected_size_px <= 0.0 || detected_box.height == 0) return false;
+    if (expected_size_px <= 0.0 || detected_box.height <= 0 || detected_box.width <= 0) return false;
 
     double aspect_ratio = static_cast<double>(detected_box.width) / detected_box.height;
     if (aspect_ratio < 0.8 || aspect_ratio > 1.25) {
@@ -102,7 +103,17 @@ bool isAligned(const cv::Rect& detected_box,
 
     double detected_size = (detected_box.width + detected_box.height) / 2.0;
     out_size_diff_ratio = std::abs(detected_size - expected_size_px) / expected_size_px;
-    return out_size_diff_ratio <= target.size_tolerance;
+    bool size_ok = out_size_diff_ratio <= target.size_tolerance;
+
+    cv::Point detected_center(
+        detected_box.x + detected_box.width / 2,
+        detected_box.y + detected_box.height / 2);
+    cv::Point frame_center(cam.frame_width_px / 2, cam.frame_height_px / 2);
+
+    double offset = cv::norm(detected_center - frame_center);
+    bool center_ok = offset <= target.center_tolerance_px * 1.5;
+
+    return size_ok && center_ok;
 }
 
 int main() {
@@ -169,7 +180,7 @@ int main() {
 
             cv::Rect box = cv::boundingRect(points);
             double size_diff_ratio = 0.0;
-            bool aligned = isAligned(box, expected_size_px, target, size_diff_ratio);
+            bool aligned = isAligned(box, expected_size_px, cam, target, size_diff_ratio);
 
             // -----------------------------------------------------------
             // Camera frame center
@@ -247,7 +258,7 @@ int main() {
 
             cv::rectangle(frame, box, aligned ? cv::Scalar(0, 255, 0) : cv::Scalar(0, 0, 255), 2);
 
-            std::string status = aligned ? "ALIGNED" : "NOT ALIGNED";
+            std::string status = aligned ? "CENTERED" : "NOT CENTERED";
             cv::putText(frame, status, cv::Point(box.x, box.y - 10),
                         cv::FONT_HERSHEY_SIMPLEX, 0.7,
                         aligned ? cv::Scalar(0, 255, 0) : cv::Scalar(0, 0, 255), 2);

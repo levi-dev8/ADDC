@@ -88,7 +88,7 @@ cv::Mat captureBestOfBurst(cv::VideoCapture& capture, int burst_count = 5) {
 // ---------------------------------------------------------------------------
 DetectionResult detectQR(const cv::Mat& frame) {
     DetectionResult result;
-    cv::QRCodeDetector detector;
+    static cv::QRCodeDetector detector;
     std::vector<cv::Point> points;
 
     std::string text = detector.detectAndDecode(frame, points);
@@ -124,6 +124,10 @@ bool isAligned(const cv::Rect& detected_box,
                int expected_size_px,
                const CameraParams& cam,
                const TargetParams& target) {
+    if (expected_size_px <= 0 || detected_box.height <= 0 || detected_box.width <= 0) {
+        return false;
+    }
+
     // --- size check ---
     double detected_size = (detected_box.width + detected_box.height) / 2.0;
     double size_diff_ratio = std::abs(detected_size - expected_size_px)

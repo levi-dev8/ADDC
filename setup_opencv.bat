@@ -49,7 +49,9 @@ if exist "%DOWNLOAD_PATH%" (
 echo [3/4] Extracting OpenCV...
 powershell -Command "& { Expand-Archive -Path '%DOWNLOAD_PATH%' -DestinationPath '%EXTRACT_PATH%' -Force }" >nul 2>&1
 
-if exist "%EXTRACT_PATH%\opencv-4.8.0" (
+if exist "%FINAL_PATH%" (
+    echo [OK] Extraction complete at %FINAL_PATH%
+) else if exist "%EXTRACT_PATH%\opencv-4.8.0" (
     echo [OK] Extraction complete
     echo [3.5/4] Renaming folder...
     ren "%EXTRACT_PATH%\opencv-4.8.0" "opencv"
